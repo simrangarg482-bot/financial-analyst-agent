@@ -7,4 +7,4 @@ __pycache__/
 analyst_memory.db
 tmp_*.pdf
 .pytest_cache/
-"@ | Set-Content -Encoding UTF8 .gitignore
+"@ | Set-Content -Encoding UTF8 .gitignore.env
