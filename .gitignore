@@ -1,0 +1,10 @@
+@"
+.env
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+analyst_memory.db
+tmp_*.pdf
+.pytest_cache/
+"@ | Set-Content -Encoding UTF8 .gitignore
