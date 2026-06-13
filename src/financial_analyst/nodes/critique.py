@@ -1,3 +1,18 @@
+import time
+
+def _invoke_with_retry(chain, inputs: dict, max_retries: int = 3) -> str:
+    """Retries LLM calls on rate limit errors with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return chain.invoke(inputs)
+        except Exception as e:
+            if "429" in str(e) and attempt < max_retries - 1:
+                wait = 30 * (attempt + 1)
+                logger.warning(f"Rate limited — waiting {wait}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                raise
+
 import logging
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -175,7 +190,7 @@ def critique(state: AnalystState) -> dict:
         llm = _get_llm()
         chain = CRITIQUE_PROMPT | llm | StrOutputParser()
 
-        critique_text = chain.invoke({
+        critique_text = _invoke_with_retry(chain,{
             "structured_data": _format_structured_data_summary(structured_data),
             "analysis": analysis,
             "revision_count": revision_count,

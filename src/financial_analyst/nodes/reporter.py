@@ -1,3 +1,18 @@
+import time
+
+def _invoke_with_retry(chain, inputs: dict, max_retries: int = 3) -> str:
+    """Retries LLM calls on rate limit errors with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return chain.invoke(inputs)
+        except Exception as e:
+            if "429" in str(e) and attempt < max_retries - 1:
+                wait = 30 * (attempt + 1)
+                logger.warning(f"Rate limited — waiting {wait}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                raise
+
 import logging
 from datetime import datetime
 from langchain_openai import ChatOpenAI
@@ -216,7 +231,7 @@ def report_generator(state: AnalystState) -> dict:
         llm = _get_llm()
         chain = REPORTER_PROMPT | llm | StrOutputParser()
 
-        final_report = chain.invoke({
+        final_report = _invoke_with_retry(chain,{
             "company_name": company_name,
             "ticker": ticker,
             "period": period,

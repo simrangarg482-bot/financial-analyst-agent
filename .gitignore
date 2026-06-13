@@ -8,3 +8,7 @@ analyst_memory.db
 tmp_*.pdf
 .pytest_cache/
 "@ | Set-Content -Encoding UTF8 .gitignore.env
+
+src/financial_analyst/config.py
+
+src/financial_analyst/config.py

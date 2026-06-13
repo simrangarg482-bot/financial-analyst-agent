@@ -1,3 +1,25 @@
+## ⚙️ Configuration
+
+This project requires API keys to run. After cloning:
+
+1. Copy the example config:
+```bash
+cp src/financial_analyst/config.example.py src/financial_analyst/config.py
+```
+
+2. Open `src/financial_analyst/config.py` and replace the placeholders:
+
+| Key | Where to get it | Free tier |
+|---|---|---|
+| `openrouter_api_key` | https://openrouter.ai/keys | ✅ Yes |
+| `tavily_api_key` | https://app.tavily.com | ✅ Yes |
+| `langsmith_api_key` | https://smith.langchain.com | ✅ Yes (optional) |
+
+3. Run the app:
+```bash
+streamlit run app.py
+```
+
 # Financial Analyst Agent
 
 A production-grade multi-agent AI system for automated investment research,

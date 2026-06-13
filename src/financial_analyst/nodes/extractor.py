@@ -1,3 +1,18 @@
+import time
+
+def _invoke_with_retry(chain, inputs: dict, max_retries: int = 3) -> str:
+    """Retries LLM calls on rate limit errors with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return chain.invoke(inputs)
+        except Exception as e:
+            if "429" in str(e) and attempt < max_retries - 1:
+                wait = 30 * (attempt + 1)
+                logger.warning(f"Rate limited — waiting {wait}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                raise
+
 import json
 import logging
 from typing import Optional
@@ -133,7 +148,7 @@ def data_extractor(state: AnalystState) -> dict:
         chain = EXTRACTION_PROMPT | structured_llm
 
         logger.info("Running data extraction...")
-        result: FinancialData = chain.invoke({"raw_content": raw_content})
+        result: FinancialData = _invoke_with_retry(chain,{"raw_content": raw_content})
 
         # Convert Pydantic model to dict for state storage
         structured_data = result.model_dump(exclude_none=False)
